@@ -1,5 +1,6 @@
 package br.com.guilherme.cm.modelo;
 
+import br.com.guilherme.cm.excecao.ExplosionExcepction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -62,13 +63,41 @@ public class FieldTest {
     @Test
     void testToggleMarkingTwoCalls() {
         field.toggleMarking();
-        field.toggleMarking();
-        assertFalse(field.isMarked());
+        assertFalse(field.open());
     }
     @Test
-    void testOpen() {
+    void testToggleMarkingMined() {
         field.toggleMarking();
-        field.toggleMarking();
-        assertFalse(field.isMarked());
+        field.undermine();
+        assertFalse(field.open());
+    }
+    @Test
+    void testToggleMarkingMinedNotMarked() {
+        field.undermine();
+        assertThrows(ExplosionExcepction.class, () -> {
+            field.open();
+        });
+    }
+    @Test
+    void testToggleMarkingNeighbor1() {
+        Field neighbor1 = new Field(2,2);
+        Field neighborOfNeighbor1 = new Field(1,1);
+        neighbor1.addNeighbor(neighborOfNeighbor1);
+        field.addNeighbor(neighbor1);
+        field.open();
+        assertTrue(neighbor1.isOpen() && neighborOfNeighbor1.isOpen());
+    }
+    @Test
+    void testToggleMarkingNeighbor2() {
+        Field field11 = new Field(1,1);
+        Field field12 = new Field(1,1);
+        field11.undermine();
+
+        Field field22 = new Field(2,2);
+        field12.addNeighbor(field11);
+
+        field.addNeighbor(field22);
+        field.open();
+        assertTrue(field22.isOpen() && field11.isClosed());
     }
 }
