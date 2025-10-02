@@ -2,6 +2,7 @@ package br.com.guilherme.cm.modelo;
 
 import br.com.guilherme.cm.excecao.ExplosionExcepction;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +74,10 @@ public class Field {
         return marked;
     }
 
+    void setOpen(boolean open) {
+        this.open = open;
+    }
+
     public boolean isOpen() {
         return open;
     }
@@ -109,16 +114,30 @@ public class Field {
     }
 
     public String toString(){
-        if(mined) {
-            return "x";
-        } else if(open && marked) {
-            return "*";
-        } else if(open && minesNeighborhood() > 0) {
-            return Long.toString(minesNeighborhood());
-        } else if(open) {
+        // Códigos ANSI de cores
+        final String RESET = "\u001B[0m";
+        final String RED = "\u001B[31m";
+        final String GREEN = "\u001B[32m";
+        final String YELLOW = "\u001B[33m";
+        final String BLUE = "\u001B[34m";
+
+        if (marked) { // marcado pelo jogador
+            return RED + "M" + RESET;
+        } else if (!open) { // fechado
+            return BLUE + "?" + RESET;
+        } else if (mined) { // aberto e era mina
+            return RED + "x" + RESET;
+        } else if (minesNeighborhood() > 0) { // aberto e tem minas vizinhas
+            // Diferente cor para cada número, por exemplo:
+            long count = minesNeighborhood();
+            switch ((int) count) {
+                case 1: return BLUE + count + RESET;
+                case 2: return GREEN + count + RESET;
+                case 3: return RED + count + RESET;
+                default: return YELLOW + count + RESET;
+            }
+        } else { // aberto e sem minas vizinhas
             return " ";
-        } else {
-            return "?";
         }
     }
 }
